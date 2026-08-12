@@ -34,6 +34,9 @@ const taskStore = useTaskStore();
         <button class="delete-btn" @click="taskStore.handleDelete(index)">删除</button>
       </div>
     </div>
+    <div class="clear-area">
+      <button class="clear-btn" @click="taskStore.handleClearAll">清空全部</button>
+    </div>
   </div>
 </template>
 
