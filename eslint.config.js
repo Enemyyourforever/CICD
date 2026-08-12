@@ -19,7 +19,7 @@ export default [
       'no-undef': 'off',
       'no-unused-vars': 'off',
       // 变量未使用检测
-      '@typescript-eslint/no-unused-vars': ['off', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       // 路由页面组件（pages/Task/index.vue）不强制多词命名
       'vue/multi-word-component-names': 'off',
       // 设置标签没有闭合报错

@@ -12,6 +12,12 @@ export default defineConfig({
     3.避免多版本依赖冲突 - 确保项目中所有的插件和组件都共用一个唯一的 Vue 实例
   */
   build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks(id) {
