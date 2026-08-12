@@ -4,6 +4,8 @@ interface Task {
   name: string;
   id: number;
 }
+console.log('testPushAgain');
+
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref<Task[]>([]);
   const handleAdd = (taskName: string) => {
