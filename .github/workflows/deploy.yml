@@ -1,22 +1,59 @@
-name: Deploy to GitHub Pages
+# ============================================================
+# 新版 CI/CD：企业级多环境流程（练手版）
+# 触发：
+#   - pull_request → 只跑 ci（lint + build），作为合并门禁
+#   - push main    → ci → deploy-staging（自动）→ deploy-production（人工审批）
+# ============================================================
+name: CI/CD
 
 on:
+  pull_request:
+    branches: [main] # PR 触发：只跑 CI 检查，不部署
   push:
-    branches: [main]
-  workflow_dispatch:
+    branches: [main] # 合并到 main：跑 CI + CD 部署
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read # 读取仓库内容
+  pages: write # 写入 GitHub Pages
+  id-token: write # OIDC token（Pages 部署必需）
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages # 同组同时只跑一个
+  cancel-in-progress: true # 新推送取消旧运行
 
 jobs:
-  build:
+  # ============ ① CI：代码质量门禁（PR 必须通过才能合并）============
+  ci:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+
+  # ============ ② CD - staging：合并后自动部署（无需审批）============
+  deploy-staging:
+    needs: ci
+    if: github.event_name == 'push' # 只有 push main 才部署，PR 不部署
+    runs-on: ubuntu-latest
+    environment:
+      name: staging # 绑定 staging 环境（无保护规则，自动部署）
+      url: https://enemyyourforever.github.io/CICD/
     steps:
       - uses: actions/checkout@v4
 
@@ -43,13 +80,21 @@ jobs:
         with:
           path: dist
 
-  deploy:
-    needs: build
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
+
+  # ============ ③ CD - production：人工审批后才能部署 ============
+  # 说明：GitHub Pages 只有一个站点（staging 已占），这里用 echo 模拟
+  # 生产部署动作，重点演示"审批门禁"环节。真实公司场景下，把 echo
+  # 替换为部署到生产服务器的命令（SSH rsync / 云平台 CLI 等）。
+  deploy-production:
+    needs: deploy-staging
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: production # 关键：绑定 production 环境 → 触发审批规则
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to production
+        run: |
+          echo "✅ production 部署已批准，开始部署..."
+          echo "（练手版：模拟部署动作，真实场景替换为服务器部署命令）"
