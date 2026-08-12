@@ -1,3 +1,4 @@
+packages: []
 minimumReleaseAgeExclude:
   - '@typescript-eslint/parser@8.67.0'
   - '@typescript-eslint/project-service@8.67.0'
