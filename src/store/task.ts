@@ -4,7 +4,6 @@ interface Task {
   name: string;
   id: number;
 }
-console.log('testPushAgain');
 
 export const useTaskStore = defineStore('task', () => {
   const tasks = ref<Task[]>([]);
@@ -21,9 +20,13 @@ export const useTaskStore = defineStore('task', () => {
   const handleDelete = (index: number) => {
     tasks.value.splice(index, 1);
   };
+  const handleClearAll = () => {
+    tasks.value = [];
+  };
   return {
     tasks,
     handleAdd,
     handleDelete,
+    handleClearAll,
   };
 });
