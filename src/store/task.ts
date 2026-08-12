@@ -8,6 +8,7 @@ export const useTaskStore = defineStore('task', () => {
   const tasks = ref<Task[]>([]);
   const handleAdd = (taskName: string) => {
     console.log(taskName);
+    console.error('testError');
 
     if (!taskName) return;
     tasks.value.push({
